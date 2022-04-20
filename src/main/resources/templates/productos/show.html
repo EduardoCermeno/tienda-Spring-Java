@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
 
@@ -62,7 +62,7 @@
         <td th:text="${produ.descripcion}"></td>
         <td th:text="${produ.cantidad}"></td>
         <td th:text="${produ.precio}"></td>
-        <td><a  class="btn btn-warning" href="">Editar</a> </td>
+        <td><a  class="btn btn-warning" th:href="@{productos/edit/{id}(id=${produ.id})}">Editar</a> </td>
         <td><a  class="btn btn-danger" href="">Eliminar</a> </td>
       </tr>       
     </tbody>

@@ -1,10 +1,13 @@
 package com.curso.ecommerce.controller;
 
+import java.util.Optional;
+
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -24,6 +27,7 @@ public class ProductoController {
 	private ProductoService productoService;
 
 	
+	//metodo que obtiene la informacion de productos y los manda a la vista show de producto
 	@GetMapping("")
 	public String show(Model model) {
 		model.addAttribute("obteniendoproductos", productoService.findAll());
@@ -31,6 +35,7 @@ public class ProductoController {
 		
 	}
 	
+	//metodo que redirecciona a la vista create de productos
 	@GetMapping("/create")
 	public String create() {
 		return "productos/create";
@@ -48,6 +53,25 @@ public class ProductoController {
 		return "redirect:/productos";
 		
 	}
+	
+	//controlador que recive un ID y sirve para editar un producto
+	@GetMapping("/edit/{id}")
+	public String edit(@PathVariable Integer id, Model model) {
+		
+		Producto producto=new Producto();
+		Optional<Producto>optionalProducto=productoService.get(id);
+		producto=optionalProducto.get();
+		LOGGER.info("producto buscado {}",producto);
+		
+		model.addAttribute("editarproducto", producto);
+		return "productos/edit";
+	}
 
 
+	@PostMapping("update")
+	public String update(Producto producto) {
+		productoService.update(producto);
+		return "redirect:/productos";
+		
+	}
 }
