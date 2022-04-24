@@ -1,5 +1,6 @@
 package com.curso.ecommerce.controller;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.slf4j.*;
@@ -10,10 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.curso.ecommerce.model.Producto;
 import com.curso.ecommerce.model.Usuario;
 import com.curso.ecommerce.service.ProductoService;
+import com.curso.ecommerce.service.UploadFileService;
 
 import ch.qos.logback.classic.Logger;
 
@@ -26,6 +30,13 @@ public class ProductoController {
 	@Autowired
 	private ProductoService productoService;
 
+	
+	//subiendo la imagen al servidor
+	@Autowired
+	private UploadFileService upload;
+	
+	
+	
 	
 	//metodo que obtiene la informacion de productos y los manda a la vista show de producto
 	@GetMapping("")
@@ -44,10 +55,30 @@ public class ProductoController {
 
 	//metodo que redirecciona al inicio de productos o sea al metodo show
 	@PostMapping("/save")
-	public String save(Producto producto) {
+	public String save(Producto producto, @RequestParam("img") MultipartFile file ) throws IOException {
 		LOGGER.info("Este es el objeto producto {}",producto);
 		Usuario u =new Usuario(1,"", "", "", "", "", "", "");
 		producto.setUsuario(u);
+		
+		//configurando para almacenar la imagen
+		if(producto.getId()==null) {//validacion cuando se grea un producto
+			String nombreImagen=upload.saveImage(file);			
+			producto.setImagen(nombreImagen);
+			
+		}
+		else {
+			if(file.isEmpty()) {
+				
+				Producto p=new Producto();
+				p=productoService.get(producto.getId()).get();
+				producto.setImagen(p.getImagen());
+			}else {
+				String nombreImagen=upload.saveImage(file);			
+				producto.setImagen(nombreImagen);
+				
+			}
+			
+		}
 		
 		productoService.save(producto);
 		return "redirect:/productos";
